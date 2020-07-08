@@ -32,7 +32,7 @@ pipeline
 		  
 		  artifactId: 'gameoflife', 
 		  classifier: '', 
-		  file: 'target/gameoflife.war', 
+		  file: 'gameoflife-web/target/gameoflife.war', 
 		  type: 'war']], 
 		  credentialsId: 'nexus3', 
 		  groupId: 'com.wakaleo.gameoflife',
