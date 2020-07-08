@@ -15,18 +15,18 @@ pipeline
 		git 'https://github.com/sravankumar-n/game-of-life.git'
 		
 		}
-               
 		}
-
-         stage("start build")
+		
+		stage("start build")
 		{  
 		steps
 		{
-			sh 'mvn package'
-                }
-                }   
-
-ts{
+			sh: 'mvn package'
+        }
+        }
+		stage('upload war to Nexus)
+		  steps{
+		    scripts{
 			     def mavenPom = readMavenPom 'pom.xml'
 				 nexusArtifactUploader artifacts: [
 				 [ 
@@ -46,5 +46,6 @@ ts{
 				 version: '1.0-SNAPSHOT'
 				 }
 		}
+		
 		}
 		}
