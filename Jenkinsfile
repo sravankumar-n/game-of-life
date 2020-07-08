@@ -21,7 +21,7 @@ pipeline
 		{  
 		steps
 		{
-			sh 'mvn deploy'
+			sh 'mvn package'
         }
         }
 		stage("upload war to Nexus")
