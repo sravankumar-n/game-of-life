@@ -1,0 +1,99 @@
+def branch_name=""
+def job_name=""
+def artifact_home=""
+
+pipeline
+{
+  agent any
+  options {
+    skipDefaultCheckout true
+  }
+
+   stages
+   {
+	stage("checkout code")
+		{
+		steps
+		{
+			checkout([$class: 'GitSCM', branches: [[name: 'release-3.0']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CheckoutOption', timeout: 60], [$class: 'CloneOption', depth: 0, noTags: false, reference: '', shallow: false, timeout: 60], [$class: 'WipeWorkspace']], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'admin_set', url: 'https://git-codecommit.us-east-1.amazonaws.com/v1/repos/InsureCloud_BillingCenter']]])
+		}
+		}
+
+
+	stage("start build")
+		{  
+		steps
+		{
+			bat label: '', script: 'gwb warTomcatDBcp --debug'
+        }
+        }
+		
+	stage("G Unit test case execution")
+		{  
+		steps
+		{
+			bat label: '', script: '''D:
+			cd D:\\Data\\jenkins\\jenkins_home\\workspace\\Cloud_PolicyCenter_release-1.0_2
+			gwb.bat test -Dtestpackage=com.test'''
+        }
+        }
+        
+     stage("store artifact"){
+        steps{
+          script{
+                branch_name = scm.branches[0].name
+                job_name = JOB_NAME.replaceAll("/","\\\\")
+                artifact_home = env.JENKINS_HOME
+                int endIndex = artifact_home.lastIndexOf("\\");
+                if (endIndex != -1)  
+                {
+                artifact_home = artifact_home.substring(0, endIndex); // not forgot to put check if(endIndex != -1)
+                }
+                sourceartifact_path = env.WORKSPACE + "\\dist\\wars\\TomcatDbcp\\bc.war"
+                storeArtifact(artifact_home,branch_name,sourceartifact_path,job_name)
+        }
+     }
+   }
+	
+
+}
+
+post { 
+        success { 
+            
+                     build job: 'BillingCenter_Deploy_FINAL', 
+                     parameters: [
+                        string(name: 'build', value: BUILD_NUMBER),
+                        string(name: 'release', value: "${branch_name}"),
+                        string(name: 'center', value: "${job_name}"),
+                        string(name: 'artifact_home', value: "${artifact_home}")
+                    ],
+                    propagate: false,
+                    wait: false
+        }
+    }
+
+}
+
+
+
+def storeArtifact(artifact_home,branch,source_artifactpath,job)
+{
+   
+    
+    finalPath = artifact_home+"\\"+"jenkinsArtifacts\\"+job+"\\"+branch+"\\"+BUILD_NUMBER
+      
+     //dir(finalPath)
+    //{
+    
+        if(!fileExists(finalPath))
+        {
+        println("true")
+           bat label: '', script: "mkdir ${finalPath}"
+           
+          // bat label: '', script: 'pwd'
+        
+        bat label: '', script: "copy ${source_artifactpath} ${finalPath}"
+        }
+    //}
+}
