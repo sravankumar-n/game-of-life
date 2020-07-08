@@ -21,10 +21,10 @@ pipeline
 		{  
 		steps
 		{
-			sh: 'mvn package'
+			sh 'mvn package'
         }
         }
-		stage("upload war to Nexus")
+		stage("upload war to Nexus"){
 		  steps{
 		    scripts{
 			     def mavenPom = readMavenPom 'pom.xml'
