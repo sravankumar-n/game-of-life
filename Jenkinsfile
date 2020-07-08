@@ -27,7 +27,7 @@ pipeline
 		stage("upload war to Nexus"){
 		  steps{
 		    scripts{
-			     def mavenPom = readMavenPom 'pom.xml'
+#			     def mavenPom = readMavenPom 'pom.xml'
 				 nexusArtifactUploader artifacts: [
 				 [ 
 				 artifactId: 'gameoflife',
